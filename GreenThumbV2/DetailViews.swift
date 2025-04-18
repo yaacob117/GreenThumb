@@ -14,7 +14,7 @@ struct PlantDetailView: View {
     let plant: Plant
     
     var isInMyPlants: Bool {
-        guard let user = plantRepository.user else { return false }
+        guard let user = plantRepository.activeUser else { return false }
         return user.myPlants.contains(where: { $0.id == plant.id })
     }
     
@@ -140,7 +140,7 @@ struct MyPlantsView: View {
     @State private var searchText: String = ""
     
     var myPlants: [Plant] {
-        guard let user = plantRepository.user else { return [] }
+        guard let user = plantRepository.activeUser else { return [] }
         
         if searchText.isEmpty {
             return user.myPlants

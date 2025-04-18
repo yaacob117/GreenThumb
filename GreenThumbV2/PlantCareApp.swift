@@ -14,7 +14,7 @@ struct PlantCareApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if plantRepository.user != nil {
+            if plantRepository.activeUser != nil {
                 MainTabView()
                     .environmentObject(plantRepository)
             } else {

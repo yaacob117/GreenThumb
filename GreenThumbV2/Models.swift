@@ -5,7 +5,6 @@
 //  Created by Pedro Inurreta on 17/04/25.
 //
 
-
 import Foundation
 
 struct Plant: Identifiable, Codable {
@@ -34,26 +33,41 @@ struct CareInstructions: Codable {
     let pruning: String
 }
 
-struct User: Codable {
+struct User: Codable, Identifiable {
+    let id = UUID()
     let username: String
     let password: String
     var myPlants: [Plant]
 }
 
+// Estructura para almacenar todos los usuarios registrados
+struct UserDatabase: Codable {
+    var users: [User]
+}
+
 // Repositorio de datos
 class PlantRepository: ObservableObject {
     @Published var plants: [Plant] = []
-    @Published var user: User?
+    @Published var activeUser: User? // Usuario actualmente autenticado
     
-    private let userDefaultsKey = "userData"
+    private var userDatabase: UserDatabase
+    private let userDatabaseKey = "userDatabaseKey"
     
     init() {
+        // Inicializar la base de datos de usuarios
+        if let data = UserDefaults.standard.data(forKey: userDatabaseKey),
+           let savedUserDatabase = try? JSONDecoder().decode(UserDatabase.self, from: data) {
+            self.userDatabase = savedUserDatabase
+        } else {
+            self.userDatabase = UserDatabase(users: [])
+        }
+        
         loadPlantCatalog()
-        loadUserData()
     }
     
     func loadPlantCatalog() {
-        // Catálogo predefinido de plantas
+        // Catálogo predefinido de plantas (igual que antes)
+       
         plants = [
             Plant(
                 name: "Monstera Deliciosa",
@@ -218,59 +232,99 @@ class PlantRepository: ObservableObject {
         ]
     }
     
-    func loadUserData() {
-        if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
-           let savedUser = try? JSONDecoder().decode(User.self, from: data) {
-            self.user = savedUser
+    // Guardar la base de datos de usuarios
+    private func saveUserDatabase() {
+        if let encodedData = try? JSONEncoder().encode(userDatabase) {
+            UserDefaults.standard.set(encodedData, forKey: userDatabaseKey)
         }
     }
     
-    func saveUserData() {
-        if let user = user,
-           let encodedData = try? JSONEncoder().encode(user) {
-            UserDefaults.standard.set(encodedData, forKey: userDefaultsKey)
+    // Sincronizar el usuario activo con la base de datos
+    private func syncActiveUser() {
+        if let activeUser = activeUser {
+            // Actualizar el usuario en la base de datos
+            if let index = userDatabase.users.firstIndex(where: { $0.username == activeUser.username }) {
+                userDatabase.users[index] = activeUser
+                saveUserDatabase()
+            }
         }
     }
     
+    // Iniciar sesión
     func login(username: String, password: String) -> Bool {
-        if let existingUser = user, existingUser.username == username, existingUser.password == password {
+        // Buscar usuario en la base de datos
+        if let user = userDatabase.users.first(where: {
+            $0.username == username && $0.password == password
+        }) {
+            // Iniciar sesión exitosa
+            self.activeUser = user
             return true
         }
         return false
     }
     
+    // Registrar nuevo usuario
     func register(username: String, password: String) -> Bool {
-        // Comprobar si ya existe un usuario
-        if user != nil {
-            return false
+        // Verificar si el nombre de usuario ya existe
+        if userDatabase.users.contains(where: { $0.username == username }) {
+            return false // Usuario ya existe
         }
         
-        user = User(username: username, password: password, myPlants: [])
-        saveUserData()
+        // Crear nuevo usuario
+        let newUser = User(username: username, password: password, myPlants: [])
+        userDatabase.users.append(newUser)
+        
+        // Guardar la base de datos actualizada
+        saveUserDatabase()
+        
+        // Iniciar sesión con el nuevo usuario
+        self.activeUser = newUser
+        
         return true
     }
     
+    // Cerrar sesión
+    func logout() {
+        // Sincronizar cambios antes de cerrar sesión
+        syncActiveUser()
+        
+        // Cerrar sesión
+        self.activeUser = nil
+    }
+    
+    // Añadir planta a la colección del usuario
     func addToMyPlants(plant: Plant) {
-        if var updatedUser = user {
-            if !updatedUser.myPlants.contains(where: { $0.id == plant.id }) {
-                updatedUser.myPlants.append(plant)
-                user = updatedUser
-                saveUserData()
+        if var user = activeUser {
+            if !user.myPlants.contains(where: { $0.id == plant.id }) {
+                user.myPlants.append(plant)
+                activeUser = user
+                syncActiveUser()
             }
         }
     }
     
+    // Eliminar planta de la colección del usuario
     func removeFromMyPlants(plantId: UUID) {
-        if var updatedUser = user {
-            updatedUser.myPlants.removeAll(where: { $0.id == plantId })
-            user = updatedUser
-            saveUserData()
+        if var user = activeUser {
+            user.myPlants.removeAll(where: { $0.id == plantId })
+            activeUser = user
+            syncActiveUser()
         }
     }
     
-    func logout() {
-        // No eliminamos los datos del usuario, solo cerramos la sesión
-        self.user = nil
-        loadUserData() // Recargar los datos guardados
+    // Eliminar cuenta de usuario (función nueva)
+    func deleteAccount() -> Bool {
+        if let activeUser = activeUser {
+            userDatabase.users.removeAll(where: { $0.username == activeUser.username })
+            saveUserDatabase()
+            self.activeUser = nil
+            return true
+        }
+        return false
+    }
+    
+    // Obtener lista de usuarios (para propósitos administrativos)
+    func getAllUsernames() -> [String] {
+        return userDatabase.users.map { $0.username }
     }
 }

@@ -110,7 +110,7 @@ struct ProfileView: View {
                         .frame(width: 100, height: 100)
                         .foregroundColor(.green)
                     
-                    Text(plantRepository.user?.username ?? "Usuario")
+                    Text(plantRepository.activeUser?.username ?? "Usuario")
                         .font(.title)
                         .fontWeight(.bold)
                 }
@@ -122,7 +122,7 @@ struct ProfileView: View {
                         .font(.headline)
                         .foregroundColor(.secondary)
                     
-                    Text("\(plantRepository.user?.myPlants.count ?? 0)")
+                    Text("\(plantRepository.activeUser?.myPlants.count ?? 0)")
                         .font(.system(size: 50))
                         .fontWeight(.bold)
                         .foregroundColor(.green)
