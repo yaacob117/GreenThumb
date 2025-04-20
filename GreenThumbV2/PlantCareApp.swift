@@ -25,7 +25,6 @@ struct PlantCareApp: App {
     }
 }
 
-// Vista principal con pestañas
 struct MainTabView: View {
     @EnvironmentObject var plantRepository: PlantRepository
     

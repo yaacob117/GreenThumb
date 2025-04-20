@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-// Vista de autenticación
 struct AuthView: View {
     @EnvironmentObject var plantRepository: PlantRepository
     @State private var username: String = ""
@@ -44,7 +43,6 @@ struct AuthView: View {
                     Button(action: {
                         if isLogin {
                             if plantRepository.login(username: username, password: password) {
-                                // Inicio de sesión exitoso
                             } else {
                                 alertMessage = "Usuario o contraseña incorrectos"
                                 showAlert = true
@@ -54,7 +52,6 @@ struct AuthView: View {
                                 alertMessage = "Por favor complete todos los campos"
                                 showAlert = true
                             } else if plantRepository.register(username: username, password: password) {
-                                // Registro exitoso
                             } else {
                                 alertMessage = "Ya existe un usuario registrado"
                                 showAlert = true
@@ -94,7 +91,6 @@ struct AuthView: View {
     }
 }
 
-// Vista de perfil
 struct ProfileView: View {
     @EnvironmentObject var plantRepository: PlantRepository
     @State private var showingLogoutAlert = false
@@ -102,7 +98,6 @@ struct ProfileView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
-                // Avatar y nombre de usuario
                 VStack(spacing: 15) {
                     Image(systemName: "person.circle.fill")
                         .resizable()
@@ -116,7 +111,6 @@ struct ProfileView: View {
                 }
                 .padding(.top, 30)
                 
-                // Estadísticas
                 VStack(spacing: 5) {
                     Text("Tu Colección")
                         .font(.headline)
@@ -137,7 +131,6 @@ struct ProfileView: View {
                 
                 Spacer()
                 
-                // Botón de cerrar sesión
                 Button(action: {
                     showingLogoutAlert = true
                 }) {

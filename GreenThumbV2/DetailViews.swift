@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-// Vista detallada de una planta
 struct PlantDetailView: View {
     @EnvironmentObject var plantRepository: PlantRepository
     let plant: Plant
@@ -21,7 +20,6 @@ struct PlantDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Imagen de la planta (placeholder)
                 ZStack(alignment: .bottomTrailing) {
                     Image(systemName: "leaf.fill")
                         .resizable()
@@ -60,7 +58,6 @@ struct PlantDetailView: View {
                         .italic()
                         .foregroundColor(.gray)
                     
-                    // Dificultad
                     HStack {
                         Text("Dificultad:")
                             .fontWeight(.medium)
@@ -81,7 +78,6 @@ struct PlantDetailView: View {
                             .cornerRadius(10)
                     }
                     
-                    // Descripción
                     Text("Descripción")
                         .font(.headline)
                         .padding(.top, 5)
@@ -89,7 +85,6 @@ struct PlantDetailView: View {
                     Text(plant.description)
                         .foregroundColor(.secondary)
                     
-                    // Instrucciones de cuidado
                     Text("Cuidados")
                         .font(.headline)
                         .padding(.top, 5)
@@ -109,7 +104,6 @@ struct PlantDetailView: View {
     }
 }
 
-// Fila para cada instrucción de cuidado
 struct CareInstructionRow: View {
     let icon: String
     let color: Color
@@ -134,7 +128,6 @@ struct CareInstructionRow: View {
     }
 }
 
-// Vista de mis plantas
 struct MyPlantsView: View {
     @EnvironmentObject var plantRepository: PlantRepository
     @State private var searchText: String = ""
@@ -182,7 +175,6 @@ struct MyPlantsView: View {
                     }
                     .padding()
                 } else {
-                    // Buscador
                     TextField("Buscar en mis plantas...", text: $searchText)
                         .padding()
                         .background(Color.gray.opacity(0.1))

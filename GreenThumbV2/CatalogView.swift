@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-// Vista del catálogo de plantas
 struct CatalogView: View {
     @EnvironmentObject var plantRepository: PlantRepository
     @State private var searchText: String = ""
@@ -34,14 +33,12 @@ struct CatalogView: View {
     var body: some View {
         NavigationView {
             VStack {
-                // Buscador
                 TextField("Buscar plantas...", text: $searchText)
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(10)
                     .padding(.horizontal)
                 
-                // Filtros de dificultad
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
                         Button(action: {
@@ -71,7 +68,6 @@ struct CatalogView: View {
                     .padding(.horizontal)
                 }
                 
-                // Lista de plantas
                 if filteredPlants.isEmpty {
                     VStack {
                         Spacer()
@@ -95,13 +91,11 @@ struct CatalogView: View {
     }
 }
 
-// Vista de fila para cada planta
 struct PlantRowView: View {
     let plant: Plant
     
     var body: some View {
         HStack(spacing: 15) {
-            // Imagen de la planta (placeholder)
             Image(systemName: "leaf.fill")
                 .resizable()
                 .scaledToFit()
@@ -128,7 +122,6 @@ struct PlantRowView: View {
                         .foregroundColor(.gray)
                 }
                 
-                // Etiqueta de dificultad
                 Text(plant.difficulty.rawValue)
                     .font(.caption)
                     .padding(.horizontal, 8)
